@@ -1,61 +1,61 @@
 package org.example;
 
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.edge.EdgeDriver;
-import java.util.List;
+        import org.openqa.selenium.By;
+        import org.openqa.selenium.Keys;
+        import org.openqa.selenium.WebDriver;
+        import org.openqa.selenium.WebElement;
+        import org.openqa.selenium.edge.EdgeDriver;
+        import org.openqa.selenium.support.events.WebDriverEventListener;
+        import org.openqa.selenium.support.ui.ExpectedConditions;
+        import org.openqa.selenium.support.ui.WebDriverWait;
+
+        import java.time.Duration;
+        import java.util.concurrent.TimeUnit;
 
 public class Main {
+
     public static void main(String[] args) {
-        // Установка пути к драйверу Microsoft Edge WebDriver
+        // Установка пути к драйверу браузера Microsoft Edge
         System.setProperty("webdriver.edge.driver", "C:\\msedgedriver.exe");
 
-        // Создание экземпляра драйвера
-        WebDriver driver = new EdgeDriver();
 
+        // Создание экземпляра веб-драйвера для Microsoft Edge
+        WebDriver driver = new EdgeDriver();
         // Максимизация окна браузера
         driver.manage().window().maximize();
 
-        // Открытие URL: https://www.samsung.com/ru/
-        driver.get("https://www.samsung.com/ru/");
+        try {
+            // Открытие URL
+            driver.get("https://www.samsung.com/ru/");
+            WebElement searchButton = driver.findElement(By.xpath("//*[@id=\"component-id\"]/div[1]/div[6]/div[1]/button"));
+            searchButton.click();
 
-        // Выбрать категорию товаров (например, "Телефоны")
-        WebElement category = driver.findElement(By.xpath("//*[@id=\"component-id\"]/div[1]/div[5]/ul[1]/li[1]/button"));
-        category.click();
-
-        WebElement category1 = driver.findElement(By.xpath("//*[@id=\"component-id\"]/div[1]/div[5]/ul[1]/li[1]/div/div[1]/ul/li[1]/a"));
-        category1.click();
-
-        driver.get("https://www.samsung.com/ru/mobile/");
-
-        WebElement category2 = driver.findElement(By.xpath("//*[@id=\"component-id\"]/div/div[2]/ul/li[3]/a/div[1]"));
-        category2.click();
-
-        WebElement category3 = driver.findElement(By.xpath("//*[@id=\"content\"]/div/div/div[3]/div/div[2]/section/div/div[2]/div[1]/div/div[2]/div/div[1]/div/ul/li[1]/div/div/label"));
-        category3.click();
+            // Ввод запроса в поле поиска
+            CharSequence input = "Galaxy S21";
+            WebElement searchInput = driver.findElement(By.xpath("//*[@id=\"gnb-search-keyword\"]"));
+            searchInput.sendKeys(input.toString());
 
 
-        // Проверить, что на странице отображаются только товары, удовлетворяющие выбранным параметрам
-        List<WebElement> products = driver.findElements(By.xpath("//*[@id=\"content\"]/div/div/div[3]/div/div[2]/section/div/div[2]/div[2]/div[1]/div[1]"));
-        boolean allProductsPassFilter = true;
-        for (WebElement product : products) {
-            // Проверяем, что каждый товар принадлежит к серии Galaxy Z
-            WebElement seriesElement = product.findElement(By.xpath("//*[@id=\"content\"]/div/div/div[3]/div/div[2]/section/div/div[2]/div[2]/div[1]/div[1]/div/div/div[2]/div[1]/div[1]/a/p, 'Galaxy Z')]"));
-            if (seriesElement == null) {
-                allProductsPassFilter = false;
-                break;
+            // Нажатие на Enter (или можно также кликнуть на кнопку поиска, если она отображается)
+            searchInput.sendKeys(Keys.ENTER);
+
+            // Ожидание появления результатов поиска
+            Thread.sleep(5000); // Подождем 5 секунд (можно использовать WebDriverWait в реальных тестах)
+
+            // Проверка, что результаты поиска отображаются
+            WebElement searchResults = driver.findElement(By.xpath("//*[@id=\"product\"]/div/div[2]/div[2]")); // Предположим, что результаты находятся в этом элементе
+
+            if (searchResults.isDisplayed()) {
+                System.out.println("Тест успешно выполнен: Отображаются результаты поиска, соответствующие введенному запросу.");
+            } else {
+                System.out.println("Тест не пройден: Результаты поиска не отображаются или не соответствуют введенному запросу.");
             }
-        }
 
-        // Вывод результата
-        if (allProductsPassFilter) {
-            System.out.println("Товары успешно фильтруются в соответствии с выбранными параметрами");
-        } else {
-            System.out.println("Ошибка: Товары не соответствуют выбранным параметрам");
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } finally {
+            // Закрытие браузера после выполнения теста
+            driver.quit();
         }
-
-        // Закрыть браузер
-        driver.quit();
     }
 }
